@@ -1,11 +1,17 @@
 import org.openqa.selenium.WebElement;
 
-public class Movie {
+public class MovieDetails {
     private int rank;
     private String name;
     private int year;
     private float rating;
-    private MovieDetails movieDetails;
+
+    public MovieDetails(int rank, String name, int year, float rating) {
+        this.rank = rank;
+        this.name = name;
+        this.year = year;
+        this.rating = rating;
+    }
 
     public int getRank() {
         return rank;
@@ -27,22 +33,6 @@ public class Movie {
         return year;
     }
 
-    public Movie(int rank, String name, int year, float rating, MovieDetails movieDetails) {
-        this.rank = rank;
-        this.name = name;
-        this.year = year;
-        this.rating = rating;
-        this.movieDetails = movieDetails;
-    }
-
-    public MovieDetails getMovieDetails() {
-        return movieDetails;
-    }
-
-    public void setMovieDetails(MovieDetails movieDetails) {
-        this.movieDetails = movieDetails;
-    }
-
     public void setYear(int year) {
         this.year = year;
     }
@@ -55,6 +45,6 @@ public class Movie {
         this.rating = rating;
     }
 
-    public Movie() {
+    public MovieDetails() {
     }
 }

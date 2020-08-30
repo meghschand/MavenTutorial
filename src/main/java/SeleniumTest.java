@@ -14,20 +14,70 @@ import java.util.List;
 public class SeleniumTest {
 
     private List<Movie> listingMovies = new ArrayList<Movie>();
-    private WebDriver driver;
+    private WebDriver driver = new ChromeDriver();
+
+    @BeforeClass
+    public static void beforeClass() {
+        System.setProperty("webdriver.chrome.driver", "C:\\Users\\lenovo\\Downloads\\chromedriver_win32\\chromedriver.exe");
+    }
 
     @Before
     public void setUp() {
-        System.setProperty("webdriver.chrome.driver", "C:\\Users\\lenovo\\Downloads\\chromedriver_win32\\chromedriver.exe");
-        WebDriver driver = new ChromeDriver();
         driver.get("https://www.imdb.com/chart/top/");
 
+        for (int rank = 0; rank < 50; rank++) {
+            WebElement movieName = driver.findElements(By.xpath("//td[@class='titleColumn']/a")).get(rank);
+            WebElement movieRating = driver.findElements(By.xpath("//td[@class='ratingColumn imdbRating']")).get(rank);
+            WebElement movieReleaseYear = driver.findElements(By.xpath("//span[@class='secondaryInfo']")).get(rank);
 
-        List<WebElement> movieNamesList = driver.findElements(By.xpath("//td[@class='titleColumn']/a"));
-        List<WebElement> movieRatingList = driver.findElements(By.xpath("//td[@class='ratingColumn imdbRating']"));
-        List<WebElement> movieReleaseyearList = driver.findElements(By.xpath("//span[@class='secondaryInfo']"));
+            listingMovies.get(rank).getMovieWebElement().click();
+            Thread.sleep(5000);
+            WebElement titlename = driver.findElement(By.xpath("//div[@class='title_wrapper']/h1"));
 
+            listingMovies.add(
+                    new Movie(rank + 1,
+                            movieName.getText(),
+                            Integer.parseInt(movieReleaseYear.getText().replace("(", "").replace(")", "")),
+                            Float.parseFloat(movieRating.getText()),
+                            ));
+        }
+    }
 
+    @Test
+    public void printMovieList() {
+        System.out.println("Rank MovieName   Rating   Year");
+        for (int rank = 0; rank < 50; rank++) {
+            Movie mv = listingMovies.get(rank);
+            System.out.println("" + mv.getRank() + " " + mv.getName() + " " + mv.getRating() + " " + mv.getYear());
+        }
+        Assert.assertTrue(true);
+    }
+
+    @Test
+    public void movieNameInDetailsTest() {
+        List<Movie> notMatchedMovieNames = new ArrayList<Movie>();
+        for (int rank = 0; rank < 2; rank++) {
+            int attempts = 0;
+            while (attempts < 2) {
+                try {
+                    listingMovies.get(rank).getMovieWebElement().click();
+                    Thread.sleep(5000);
+                    WebElement titlename = driver.findElement(By.xpath("//div[@class='title_wrapper']/h1"));
+                    String titleIndName = titlename.getText().split("\\(")[0].trim();
+                    if (!titleIndName.equals(listingMovies.get(rank).getName())) {
+                        notMatchedMovieNames.add(listingMovies.get(rank));
+                        System.out.println(listingMovies.get(rank).getName() + " is not matching with the name in listing screen");
+                    }
+                    Thread.sleep(2000);
+                    driver.navigate().back();
+                    Thread.sleep(2000);
+                    break;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        Assert.assertEquals(0, notMatchedMovieNames.size());
     }
 
     @Test
